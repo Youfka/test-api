@@ -71,15 +71,32 @@ function getJSON(ev) {
 // }
 
 function writeTests(json){
-  let test;
-  test = `cy.request('GET', 'http://test.site/test').then((response) => {
+  let firstType;
+  if(json.required[0]=='0'){
+    firstType = 'Array';
+  } else {
+    firstType = 'Object';
+  }
+  
+  let test = `cy.request('GET', '/test').then((response) => {
     expect(response.status).to.eq(200)
     cy.wrap(response.body).its('length').should('be.gt', 1)
-    cy.wrap(response.body).should('be.a', 'Object')
-    cy.wrap(response.body).each((value)=>{
+    cy.wrap(response.body).should('be.a', ${firstType})
+    `;
+  let propertiesKeys = json.properties[0].required;
+  if(firstType == 'Array') {
+    test+= `
+    cy.wrap(response.body).each((value, index)=>{
       cy.wrap(value).should('be.a', 'Object')
+      expect(value).to.have.all.keys(...propertiesKeys)
+      cy.wrap(Object.values(value)).each((item, index)=>{
+        cy.wrap(item).should('be.a', ${json.properties[0].properties}[item].type)
+      })
     })
-  })`;
+  })`
+  } else {
+    
+  }
   // const getItems = () =>
   //   cy.request('/test')
   //     .its('body')
@@ -91,5 +108,6 @@ function writeTests(json){
   //     .each(value =>
   //       expect(value).to.have.all.keys('id', 'task')
   //     )
+  console.log(test);
   return test;
 }
