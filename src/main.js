@@ -7,9 +7,47 @@ function UserException() {
 }
 
 function getJSON(ev) {
-  let value = ev.replace(/'/gi, '"');
+  let value = {
+    "required": [
+        "0",
+        "1"
+    ],
+    "properties": {
+        "0": {
+            "required": [
+                "id",
+                "task"
+            ],
+            "properties": {
+                "id": {
+                    "type": "number"
+                },
+                "task": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "1": {
+            "required": [
+                "id",
+                "task"
+            ],
+            "properties": {
+                "id": {
+                    "type": "number"
+                },
+                "task": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    }
+}
+  // let value = ev.replace(/'/gi, '"');
   try {
-    value = JSON.parse(value);
+    // value = JSON.parse(value);
     if(typeof value !== 'object') {
       try { throw new UserException(); } 
       catch(e){
@@ -23,26 +61,35 @@ function getJSON(ev) {
       console.log(e);
     }
   }
-  checkJSON(value);
+  writeTests(value);
 }
 
-function checkJSON(value){
-  if(Array.isArray(value)){
-    writeTests(true);
-  }
-}
+// function checkJSON(value){
+//   if(Array.isArray(value)){
+//     writeTests(true);
+//   }
+// }
 
-function writeTests(array){
+function writeTests(json){
   let test;
-  if(array){
-    test = `cy.request('GET', 'http://test.site/test').then((response) => {
-      expect(response.status).to.eq(200)
-      cy.wrap(response.body).its('length').should('be.gt', 1)
-      cy.wrap(response.body).should('be.a', 'Array')
-      cy.wrap(response.body).each((value)=>{
-        cy.wrap(value).should('be.a', 'Object')
-      })
-    })`;
-  }
+  test = `cy.request('GET', 'http://test.site/test').then((response) => {
+    expect(response.status).to.eq(200)
+    cy.wrap(response.body).its('length').should('be.gt', 1)
+    cy.wrap(response.body).should('be.a', 'Object')
+    cy.wrap(response.body).each((value)=>{
+      cy.wrap(value).should('be.a', 'Object')
+    })
+  })`;
+  // const getItems = () =>
+  //   cy.request('/test')
+  //     .its('body')
+  //   cy.request('/test')
+  //     .its('headers')
+  //     .its('content-type')
+  //     .should('include', 'application/json')
+  //   getItems()
+  //     .each(value =>
+  //       expect(value).to.have.all.keys('id', 'task')
+  //     )
   return test;
 }
