@@ -1,0 +1,14 @@
+{
+    "name": "test-api",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "build": "./node_modules/.bin/babel src --out-dir build"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@babel/cli": "^7.0.0",
+        "@babel/core": "^7.0.0",
+        "@babel/preset-env": "^7.4.4"
+    }
+}
