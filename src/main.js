@@ -9,39 +9,30 @@ function UserException() {
 function getJSON(ev) {
   let value = {
     "required": [
-        "0",
-        "1"
+        "id",
+        "name",
+        "price",
+        "testBool",
+        "tags"
     ],
     "properties": {
-        "0": {
-            "required": [
-                "id",
-                "task"
-            ],
-            "properties": {
-                "id": {
-                    "type": "number"
-                },
-                "task": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
+        "id": {
+            "type": "number"
         },
-        "1": {
-            "required": [
-                "id",
-                "task"
-            ],
-            "properties": {
-                "id": {
-                    "type": "number"
-                },
-                "task": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
+        "name": {
+            "type": "string"
+        },
+        "price": {
+            "type": "number"
+        },
+        "testBool": {
+            "type": "boolean"
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         }
     }
 }
@@ -78,41 +69,44 @@ function writeTests(json){
     firstType = 'Object';
   }
   
-  let test = `cy.request('GET', '/test').then((response) => {
-    expect(response.status).to.eq(200)
-    cy.wrap(response.body).its('length').should('be.gt', 1)
-    cy.wrap(response.body).should('be.a', ${firstType})
+  let test = 
+`cy.request('GET', '/test').then((response) => {
+  expect(response.status).to.eq(200)
+  cy.wrap(response.body).its('length').should('be.gt', 1)
+  cy.wrap(response.body).should('be.a', '${firstType}')
     `;
   
   if(firstType == 'Array') {
-    let propertiesKeys = json.properties[0].required;
+    let propertiesKeys = Object.keys(json.properties[0].properties);
     let properties = Object.values(json.properties[0].properties);
     test+= `
-    cy.wrap(response.body).each((value, index)=>{
-      cy.wrap(value).should('be.a', 'Object')
-      expect(value).to.have.all.keys(${[...propertiesKeys]})
-      `;
+  cy.wrap(response.body).each((value, index)=>{
+    cy.wrap(value).should('be.a', 'Object')
+    expect(value).to.have.all.keys(${propertiesKeys.map((item)=>{return "'"+item+"'";})})
+    `;
     for(let i=0; i<properties.length; i++){
-      test+=`cy.wrap(item).should('be.a', '${properties[i].type}')
-      `
+      test+=
+    `cy.wrap(value.${propertiesKeys[i]}).should('be.a', '${properties[i].type}')
+    `
     }
     test+= `
-    })
-  })`
+  })
+})`
   } else {
-    let propertiesKeys = Object.values(json.properties);
+    let propertiesKeys = Object.keys(json.properties);
     let properties = Object.values(json.properties);
     test+= `
-    cy.wrap(response.body).should('be.a', 'Object')
-    expect(response.body).to.have.all.keys(${[...propertiesKeys]})
-    `
+  cy.wrap(response.body).should('be.a', 'Object')
+  expect(response.body).to.have.all.keys(${propertiesKeys.map((item)=>{return "'"+item+"'";})})
+  `
     for(let i=0; i<properties.length; i++){
-      test+=`cy.wrap(item).should('be.a', '${properties[i].type}')
-      `
+      test+=
+  `cy.wrap(item).should('be.a', '${properties[i].type}')
+  `
     }
-    test+= `
-    })
-  })`
+    test+= 
+ `})
+})`
   }
   // const getItems = () =>
   //   cy.request('/test')
@@ -125,7 +119,7 @@ function writeTests(json){
   //     .each(value =>
   //       expect(value).to.have.all.keys('id', 'task')
   //     )
-  console.log(test, ...json.properties[0].required);
+  console.log(test);
   document.querySelector('.js-output').value = test;
   return test;
 }
