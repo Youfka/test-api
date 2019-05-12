@@ -7,38 +7,38 @@ function UserException() {
 }
 
 function getJSON(ev) {
-  let value = {
-    "required": [
-        "id",
-        "name",
-        "price",
-        "testBool",
-        "tags"
-    ],
-    "properties": {
-        "id": {
-            "type": "number"
-        },
-        "name": {
-            "type": "string"
-        },
-        "price": {
-            "type": "number"
-        },
-        "testBool": {
-            "type": "boolean"
-        },
-        "tags": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        }
-    }
-}
-  // let value = ev.replace(/'/gi, '"');
+//   let value = {
+//     "required": [
+//         "id",
+//         "name",
+//         "price",
+//         "testBool",
+//         "tags"
+//     ],
+//     "properties": {
+//         "id": {
+//             "type": "number"
+//         },
+//         "name": {
+//             "type": "string"
+//         },
+//         "price": {
+//             "type": "number"
+//         },
+//         "testBool": {
+//             "type": "boolean"
+//         },
+//         "tags": {
+//             "type": "array",
+//             "items": {
+//                 "type": "string"
+//             }
+//         }
+//     }
+// }
+  let value = ev.replace(/'/gi, '"');
   try {
-    // value = JSON.parse(value);
+    value = JSON.parse(value);
     if(typeof value !== 'object') {
       try { throw new UserException(); } 
       catch(e){
@@ -72,7 +72,6 @@ function writeTests(json){
   let test = 
 `cy.request('GET', '/test').then((response) => {
   expect(response.status).to.eq(200)
-  cy.wrap(response.body).its('length').should('be.gt', 1)
   cy.wrap(response.body).should('be.a', '${firstType}')
     `;
   
@@ -80,6 +79,7 @@ function writeTests(json){
     let propertiesKeys = Object.keys(json.properties[0].properties);
     let properties = Object.values(json.properties[0].properties);
     test+= `
+  cy.wrap(response.body).its('length').should('be.gt', 1)
   cy.wrap(response.body).each((value, index)=>{
     cy.wrap(value).should('be.a', 'Object')
     expect(value).to.have.all.keys(${propertiesKeys.map((item)=>{return "'"+item+"'";})})
@@ -96,29 +96,16 @@ function writeTests(json){
     let propertiesKeys = Object.keys(json.properties);
     let properties = Object.values(json.properties);
     test+= `
-  cy.wrap(response.body).should('be.a', 'Object')
   expect(response.body).to.have.all.keys(${propertiesKeys.map((item)=>{return "'"+item+"'";})})
   `
     for(let i=0; i<properties.length; i++){
       test+=
-  `cy.wrap(item).should('be.a', '${properties[i].type}')
+  `cy.wrap(response.body.${propertiesKeys[i]}).should('be.a', '${properties[i].type}')
   `
     }
-    test+= 
- `})
+    test+= `
 })`
   }
-  // const getItems = () =>
-  //   cy.request('/test')
-  //     .its('body')
-  //   cy.request('/test')
-  //     .its('headers')
-  //     .its('content-type')
-  //     .should('include', 'application/json')
-  //   getItems()
-  //     .each(value =>
-  //       expect(value).to.have.all.keys('id', 'task')
-  //     )
   console.log(test);
   document.querySelector('.js-output').value = test;
   return test;

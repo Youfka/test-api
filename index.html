@@ -13,7 +13,7 @@
       }
       .wrapper {
         display: flex;
-        padding: 50px 20px;
+        padding: 20px;
       }
       .input__wrapper, .output__wrapper {
         width: 48%;
@@ -26,12 +26,18 @@
       .input__wrapper {
         margin-right: 2%;
       }
+      .error {
+        padding: 20px;
+        color: red;
+        font-size: 20px;
+      }
     </style>
   </head>
   <body>
     <noscript>
       <strong>We're sorry but test-api doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
+    <div class="error js-error"></div>
     <div class="wrapper">
       <div class="input__wrapper">
         <span>input</span>
@@ -42,6 +48,5 @@
         <textarea class="textarea__output js-output"></textarea>
       </div>
     </div>
-    <div class="js-error"></div>
   </body>
 </html>
