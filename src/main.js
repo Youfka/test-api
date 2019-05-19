@@ -88,6 +88,11 @@ function writeTests(json){
       test+=
     `cy.wrap(value.${propertiesKeys[i]}).should('be.a', '${properties[i].type}')
     `
+    // if(properties[i].type == 'array') {
+    //   test+=
+    // `cy.wrap(value.${propertiesKeys[i]}[0]).should('be.a', '${properties[i].items.type}')
+    // `
+    // }
     }
     test+= `
   })
@@ -102,6 +107,11 @@ function writeTests(json){
       test+=
   `cy.wrap(response.body.${propertiesKeys[i]}).should('be.a', '${properties[i].type}')
   `
+  if(properties[i].type == 'array') {
+    test+=
+  `cy.wrap(response.body.${propertiesKeys[i]}[0]).should('be.a', '${properties[i].items.type}')
+  `
+  }
     }
     test+= `
 })`

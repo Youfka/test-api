@@ -89,7 +89,11 @@ function writeTests(json) {
     }), ")\n    ");
 
     for (var i = 0; i < properties.length; i++) {
-      test += "cy.wrap(value.".concat(propertiesKeys[i], ").should('be.a', '").concat(properties[i].type, "')\n    ");
+      test += "cy.wrap(value.".concat(propertiesKeys[i], ").should('be.a', '").concat(properties[i].type, "')\n    "); // if(properties[i].type == 'array') {
+      //   test+=
+      // `cy.wrap(value.${propertiesKeys[i]}[0]).should('be.a', '${properties[i].items.type}')
+      // `
+      // }
     }
 
     test += "\n  })\n})";
@@ -104,21 +108,14 @@ function writeTests(json) {
 
     for (var _i = 0; _i < _properties.length; _i++) {
       test += "cy.wrap(response.body.".concat(_propertiesKeys[_i], ").should('be.a', '").concat(_properties[_i].type, "')\n  ");
+
+      if (_properties[_i].type == 'array') {
+        test += "cy.wrap(response.body.".concat(_propertiesKeys[_i], "[0]).should('be.a', '").concat(_properties[_i].items.type, "')\n  ");
+      }
     }
 
     test += "\n})";
-  } // const getItems = () =>
-  //   cy.request('/test')
-  //     .its('body')
-  //   cy.request('/test')
-  //     .its('headers')
-  //     .its('content-type')
-  //     .should('include', 'application/json')
-  //   getItems()
-  //     .each(value =>
-  //       expect(value).to.have.all.keys('id', 'task')
-  //     )
-
+  }
 
   console.log(test);
   document.querySelector('.js-output').value = test;
